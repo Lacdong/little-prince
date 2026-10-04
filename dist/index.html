@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hoàng Tử Bé & Chú Cáo - Ngắm Hoàng Hôn B-612</title>
+  <meta name="description" content="Trải nghiệm 3D tương tác kỳ diệu: Ngắm 44 lần hoàng hôn cùng Hoàng Tử Bé và Chú Cáo trên tiểu tinh cầu B-612.">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js & OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- Google Fonts: Cormorant Garamond & Quicksand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script type="module" crossorigin src="/assets/index-DYDNp8Nz.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-C8N6UvO8.css">
+</head>
+<body class="relative w-screen h-screen overflow-hidden text-amber-50">
+
+  <!-- 3D Canvas Container -->
+  <div id="webgl-canvas"></div>
+
+  <!-- Interactive Hint Toast (Shows on raycast click) -->
+  <div id="toast-hint" class="fixed top-20 left-1/2 -translate-x-1/2 z-30 pointer-events-none transition-all duration-500 opacity-0 transform -translate-y-4">
+    <div class="glass-panel px-6 py-3 rounded-full text-amber-200 text-sm font-medium shadow-2xl flex items-center gap-2.5 border border-amber-300/30">
+      <span id="toast-icon">✨</span>
+      <span id="toast-message">Nhấp vào Hoàng Tử, Cáo hoặc Bông Hồng để tương tác</span>
+    </div>
+  </div>
+
+  <!-- Main HUD Layer -->
+  <div id="ui-container" class="relative z-10 w-full h-full flex flex-col justify-between p-4 md:p-6 pointer-events-none transition-opacity duration-500">
+    
+    <!-- Top Header: Title & Utility controls -->
+    <header class="flex justify-between items-start pointer-events-auto">
+      <div class="glass-panel px-5 py-3 rounded-2xl max-w-sm sm:max-w-md">
+        <div class="flex items-center gap-2">
+          <span class="text-xl animate-bounce">✨</span>
+          <h1 class="font-storybook text-2xl md:text-3xl font-semibold tracking-wide text-amber-200">
+            Le Petit Prince
+          </h1>
+        </div>
+        <p class="text-xs md:text-sm text-amber-100/75 mt-0.5 tracking-wider">
+          Tiểu tinh cầu B-612 • Hoàng hôn cùng Cáo
+        </p>
+      </div>
+
+      <!-- Control Action Buttons -->
+      <div class="flex items-center gap-2 md:gap-2.5 flex-wrap justify-end">
+        <!-- Auto Sunset Loop Button -->
+        <button id="btn-auto-sunset" title="Tự động quay chu kỳ hoàng hôn" class="glass-btn p-3 rounded-2xl flex items-center gap-2 text-xs md:text-sm text-amber-200">
+          <svg id="icon-play" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <svg id="icon-pause" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span id="auto-sunset-status" class="hidden sm:inline">Tự Động Quay</span>
+        </button>
+
+        <!-- Audio Music Box Toggle Button -->
+        <button id="btn-audio" title="Bật/Tắt Giai Điệu B-612" class="glass-btn p-3 rounded-2xl flex items-center gap-2 text-xs md:text-sm text-amber-200">
+          <svg id="icon-sound-on" class="w-5 h-5 hidden text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          </svg>
+          <svg id="icon-sound-off" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+          </svg>
+          <span id="audio-status" class="hidden sm:inline">Giai Điệu B-612</span>
+        </button>
+
+        <!-- Toggle HUD Visibility (Photo Mode) -->
+        <button id="btn-toggle-ui" title="Ẩn Giao Diện (Chế độ chụp ảnh)" class="glass-btn p-3 rounded-2xl text-amber-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Middle-Bottom: Little Prince Story Quotes -->
+    <div class="flex justify-center my-auto pointer-events-auto max-w-xl mx-auto w-full px-2">
+      <div id="quote-card" class="glass-panel p-5 md:p-6 rounded-3xl w-full text-center transition-all duration-700 transform hover:scale-[1.01]">
+        <div class="text-xs uppercase tracking-widest text-amber-300/80 mb-2 font-medium flex items-center justify-center gap-1.5">
+          <span>✦</span>
+          <span id="quote-chapter">Trích đoạn kinh điển</span>
+          <span>✦</span>
+        </div>
+        <p id="quote-text" class="font-storybook text-lg sm:text-xl md:text-2xl text-amber-100 italic leading-relaxed min-h-[64px] flex items-center justify-center transition-opacity duration-300">
+          "Người ta chỉ thấy rõ bằng trái tim. Cái cốt lõi là vô hình trong mắt trần."
+        </p>
+        <div class="flex items-center justify-between mt-4 pt-3 border-t border-white/10 text-xs text-amber-200/70">
+          <button id="btn-prev-quote" class="hover:text-amber-300 px-2 py-1 flex items-center gap-1 transition-colors">
+            ← Câu trước
+          </button>
+          <span id="quote-counter" class="text-xs font-mono text-amber-300/60">1 / 8</span>
+          <button id="btn-next-quote" class="hover:text-amber-300 px-2 py-1 flex items-center gap-1 transition-colors">
+            Câu kế tiếp →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Panel: 44 Sunsets Slider & Camera View Presets -->
+    <footer class="flex flex-col md:flex-row gap-3 md:gap-4 items-stretch md:items-end justify-between pointer-events-auto">
+      
+      <!-- Sunset Slider (Watch 44 sunsets) -->
+      <div class="glass-panel px-5 py-3.5 rounded-2xl flex-1 max-w-md">
+        <div class="flex justify-between items-center mb-1.5">
+          <label for="slider-sunset" class="text-xs font-semibold tracking-wider text-amber-200 flex items-center gap-1.5">
+            <span>🌅</span>
+            <span>Ngắm 44 lần hoàng hôn:</span>
+          </label>
+          <span id="sunset-time-label" class="text-xs font-mono text-amber-300 font-bold">18:44 • Hoàng hôn thứ 44</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-amber-200/60">Trưa</span>
+          <input id="slider-sunset" type="range" min="0" max="100" value="65" class="w-full cursor-pointer">
+          <span class="text-xs text-amber-200/60">Đêm</span>
+        </div>
+      </div>
+
+      <!-- Camera Presets -->
+      <div class="glass-panel p-2.5 rounded-2xl flex items-center justify-around gap-1.5 sm:gap-2">
+        <button class="cam-btn glass-btn px-3 py-2 rounded-xl text-xs font-medium text-amber-100 flex items-center gap-1.5 active" data-preset="sunset">
+          <span>🌄</span>
+          <span class="hidden sm:inline">Hoàng Hôn</span>
+        </button>
+        <button class="cam-btn glass-btn px-3 py-2 rounded-xl text-xs font-medium text-amber-100 flex items-center gap-1.5" data-preset="characters">
+          <span>🦊</span>
+          <span class="hidden sm:inline">Hoàng Tử & Cáo</span>
+        </button>
+        <button class="cam-btn glass-btn px-3 py-2 rounded-xl text-xs font-medium text-amber-100 flex items-center gap-1.5" data-preset="rose">
+          <span>🌹</span>
+          <span class="hidden sm:inline">Bông Hồng B-612</span>
+        </button>
+        <button class="cam-btn glass-btn px-3 py-2 rounded-xl text-xs font-medium text-amber-100 flex items-center gap-1.5" data-preset="space">
+          <span>🪐</span>
+          <span class="hidden sm:inline">Vũ Trụ</span>
+        </button>
+      </div>
+
+    </footer>
+  </div>
+
+  <!-- Quick Floating "Show UI" button when hidden in Photo Mode -->
+  <button id="btn-show-ui" title="Hiện Giao Diện" class="fixed top-4 right-4 z-20 glass-btn p-3 rounded-2xl text-amber-200 hidden opacity-0 transition-all duration-300 pointer-events-auto shadow-2xl">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+  </button>
+
+</body>
+</html>

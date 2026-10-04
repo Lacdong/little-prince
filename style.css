@@ -1,0 +1,91 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Quicksand', sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  background-color: #0b0d1b;
+}
+
+.font-storybook {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+/* Glassmorphism custom styling */
+.glass-panel {
+  background: rgba(18, 20, 36, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+.glass-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-btn:hover {
+  background: rgba(255, 225, 160, 0.2);
+  border-color: rgba(255, 220, 130, 0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 190, 80, 0.25);
+}
+
+.glass-btn:active {
+  transform: translateY(1px);
+}
+
+.glass-btn.active {
+  background: rgba(255, 209, 102, 0.25);
+  border-color: rgba(255, 209, 102, 0.6);
+  box-shadow: 0 0 12px rgba(255, 209, 102, 0.35);
+}
+
+/* Slider aesthetic */
+input[type=range] {
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.2);
+  height: 6px;
+  border-radius: 999px;
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffd166;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px rgba(255, 209, 102, 0.8);
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+  background: #ffe082;
+}
+
+/* Subtle pulse glow */
+@keyframes softGlow {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.animate-soft-glow {
+  animation: softGlow 4s infinite ease-in-out;
+}
+
+#webgl-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+}
